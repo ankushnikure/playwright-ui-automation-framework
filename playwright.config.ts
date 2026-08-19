@@ -1,4 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export default defineConfig({
     testDir: "./tests",
@@ -14,11 +17,11 @@ export default defineConfig({
     reporter: "html",
 
     use: {
-        baseURL: "https://demo.nopcommerce.com",
+        baseURL: process.env.BASE_URL,
         trace: "on-first-retry",
         screenshot: "only-on-failure",
         video: "retain-on-failure",
-        headless: true
+        headless: false
     },
 
     projects: [
