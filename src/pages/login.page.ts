@@ -1,4 +1,4 @@
-import { Locator } from "@playwright/test";
+import { expect, Locator } from "@playwright/test";
 import { BasePage } from "./base.page";
 
 export class LoginPage extends BasePage {
@@ -7,7 +7,7 @@ export class LoginPage extends BasePage {
     private readonly usernameInput: Locator = this.page.getByRole('textbox', { name: 'Username' });
     private readonly passwordInput: Locator = this.page.getByRole('textbox', { name: 'Password' });
     private readonly loginButton: Locator = this.page.getByRole('button', { name: 'Login' });
-    readonly loginError: Locator = this.page.getByRole('heading', {name: /Epic sadface/});
+    private readonly loginError: Locator = this.page.locator('[data-test="error"]');
 
 
     // Methods
@@ -21,7 +21,8 @@ export class LoginPage extends BasePage {
         await this.loginButton.click()
     }
 
-    async getLoginError(): Promise<string> {
-        return await this.loginError.textContent();
+    async expectLoginError(message: string): Promise<void> {
+        await expect(this.loginError).toHaveText(message);
     }
+    
 }

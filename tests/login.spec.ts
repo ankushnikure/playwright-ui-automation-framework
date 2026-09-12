@@ -1,24 +1,24 @@
 import { test, expect } from "@playwright/test";
 import { LoginPage } from "@pages/login.page";
-import { loginCredentials } from "@test-data/users";
+import { validUser, invalidUser } from "@test-data/users";
 
-loginCredentials.forEach((data) => {
+let loginPage: LoginPage;
 
-    test(`Verify login with ${data.testcase}`, async ({ page }) => {
+test.describe("Login Tests", () => {
+
+    test.beforeEach(async ({ page }) => {
+        loginPage = new LoginPage(page);
         await page.goto("/");
-        console.log("URL:", page.url());
-        console.log("TITLE:", await page.title());
+    })
 
-        const loginPage = new LoginPage(page);
-        await loginPage.login(data.username, data.password);
+    test("Verify login with valid credentials", async ({ page }) => {
+        await loginPage.login(validUser.username, validUser.password)
+        await expect(page).toHaveURL(/inventory.html/);
+    })
 
-        if (data.expectedResult === "success") {
-            await expect(page).toHaveURL(/inventory.html/);
-        } else {
-            await expect(loginPage.loginError).toBeVisible();
-            const loginErrorText = await loginPage.getLoginError();
-            console.log("Login error:", loginErrorText);
-        }
-    });
+    test("Verify login with invalid credentials", async ({ page }) => {
+        await loginPage.login(invalidUser.username, invalidUser.password);
+        await loginPage.expectLoginError("Epic sadface: Username and password do not match any user in this service");
+    })
 
 })

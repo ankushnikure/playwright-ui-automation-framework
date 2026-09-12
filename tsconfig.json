@@ -9,7 +9,7 @@
             "@config/*": ["src/config/*"],
             "@pages/*": ["src/pages/*"],
             "@test-data/*": ["src/test-data/*"],
-             "@types/*": ["src/types/*"]
+            "@types/*": ["src/types/*"]
         },
   },
   "include": [
