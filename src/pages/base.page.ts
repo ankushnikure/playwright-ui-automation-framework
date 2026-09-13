@@ -1,17 +1,21 @@
-import { Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 
 export class BasePage {
     constructor(protected page: Page) {}
 
+    // Dynamic locators
+    private readonly pageTitle: Locator = this.page.locator(".title");
+
+    // Methods
     async navigate(path: string): Promise<void> {
         await this.page.goto(path);
     }
 
-    async getTitle(): Promise<void> {
-        await this.page.title();
+    async getPageTitle(): Promise<string> {
+        return (await this.pageTitle.textContent()) ?? "";
     }
 
-    async getCurrentUrl(): Promise<void> {
-        this.page.url();
+    getCurrentUrl(): string {
+        return this.page.url();
     }
 }
