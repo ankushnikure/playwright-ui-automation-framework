@@ -1,3 +1,5 @@
+// Playwright CI Pipeline
+
 pipeline {
     agent any
 
