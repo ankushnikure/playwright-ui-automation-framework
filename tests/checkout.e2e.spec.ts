@@ -8,7 +8,7 @@ test.beforeEach(async ({ loginPage }) => {
     await loginPage.login(validUser.username, validUser.password);
 });
 
-test("Verify user can complete checkout and download order PDF", async ({
+test("Verify user can complete checkout and download order PDF @smoke", async ({
     page,
     inventoryPage,
     cartPage,
