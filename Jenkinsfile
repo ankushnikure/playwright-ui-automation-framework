@@ -7,13 +7,6 @@ pipeline {
         LOGIN_CREDENTIALS = credentials('playwright-ui-automation')
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 sh 'npm ci'
