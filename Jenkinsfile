@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         CI = 'true'
+        BASE_URL = 'https://www.saucedemo.com/'
     }
 
     stages {
