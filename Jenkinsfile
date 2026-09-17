@@ -6,7 +6,7 @@ pipeline {
     environment {
         CI = 'true'
         BASE_URL = 'https://www.saucedemo.com/'
-        LOGIN_CREDENTIALS = credentials('playwright-login')
+        LOGIN_CREDENTIALS = credentials('playwright-ui-automation')
     }
 
     stages {
