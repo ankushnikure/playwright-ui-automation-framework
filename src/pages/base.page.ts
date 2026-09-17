@@ -4,7 +4,7 @@ export class BasePage {
     constructor(protected page: Page) {}
 
     // Dynamic locators
-    private readonly pageTitle: Locator = this.page.locator(".title");
+    readonly pageTitle: Locator = this.page.locator(".title");
 
     // Methods
     async navigate(path: string): Promise<void> {

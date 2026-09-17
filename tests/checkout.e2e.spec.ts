@@ -31,7 +31,7 @@ test("Verify user can complete checkout and download order PDF @smoke", async ({
     await test.step("Proceed to checkout", async () => {
         await cartPage.proceedToCheckout();
         expect(checkoutInformationPage.getCurrentUrl()).toContain("checkout-step-one.html");
-        expect(await  checkoutInformationPage.getPageTitle()).toBe("Checkout: Your Information");
+        expect(checkoutInformationPage.pageTitle).toHaveText("Checkout: Your Information");
     });
 
     await test.step("Enter checkout information", async () => {
@@ -45,13 +45,13 @@ test("Verify user can complete checkout and download order PDF @smoke", async ({
     await test.step("Continue checkout", async () => {
         await checkoutInformationPage.continueCheckout();
         expect(checkoutOverviewPage.getCurrentUrl()).toContain("checkout-step-two.html");
-        expect(await checkoutOverviewPage.getPageTitle()).toBe("Checkout: Overview");
+        await expect(checkoutOverviewPage.pageTitle).toHaveText("Checkout: Overview");
     });
 
     await test.step("Complete checkout", async () => {
         await checkoutOverviewPage.finishCheckout();
         expect(checkoutCompletePage.getCurrentUrl()).toContain("checkout-complete.html");
-        expect(await checkoutCompletePage.getPageTitle()).toBe("Checkout: Complete!");
+        await expect(checkoutCompletePage.pageTitle).toHaveText("Checkout: Complete!");
     });
 
     await test.step("Download order PDF", async () => {
