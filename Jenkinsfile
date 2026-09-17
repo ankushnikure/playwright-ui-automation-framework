@@ -4,6 +4,7 @@ pipeline {
     environment {
         CI = 'true'
         BASE_URL = 'https://www.saucedemo.com/'
+        LOGIN_CREDENTIALS = credentials('playwright-ui-automation')
     }
 
     stages {
@@ -27,7 +28,11 @@ pipeline {
 
         stage('Run Smoke Tests') {
             steps {
-                sh 'npm run test:smoke'
+                sh '''
+                    USERNAME="$LOGIN_CREDENTIALS_USR" \
+                    PASSWORD="$LOGIN_CREDENTIALS_PSW" \
+                    npm run test:smoke
+                '''
             }
         }
     }
