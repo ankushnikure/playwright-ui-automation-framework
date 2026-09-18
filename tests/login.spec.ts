@@ -7,7 +7,7 @@ test.describe("Login tests", () => {
         await loginPage.navigate("/");
     });
 
-    test("Verify login with valid credentials @smoke", async ({ page, loginPage, inventoryPage }) => {
+    test("Verify login with valid credentials", async ({ page, loginPage, inventoryPage }) => {
         await loginPage.login(validUser.username, validUser.password)
         expect(inventoryPage.getCurrentUrl()).toContain("inventory.html");
         expect(await inventoryPage.getPageTitle()).toBe("Products");

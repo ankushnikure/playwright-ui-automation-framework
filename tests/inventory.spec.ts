@@ -9,7 +9,7 @@ test.describe("Inventory tests", () => {
         await loginPage.login(validUser.username, validUser.password);
     });
 
-    test("Verify user can add specific product to cart @smoke", async ({ inventoryPage }) => {
+    test("Verify user can add specific product to cart", async ({ inventoryPage }) => {
         await inventoryPage.addProductToCart(products.backpack)
         expect(await inventoryPage.isRemoveButtonVisible(products.backpack)).toBeTruthy();
     });
