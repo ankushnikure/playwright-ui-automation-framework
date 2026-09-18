@@ -48,4 +48,13 @@ pipeline {
             }
         }
     }
+
+    post {
+        always {
+            archiveArtifacts(
+                artifacts: 'playwright-report/**/*, test-results/**/*',
+                allowEmptyArchive: true
+            )
+        }
+    }
 }
