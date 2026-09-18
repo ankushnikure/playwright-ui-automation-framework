@@ -10,6 +10,13 @@ pipeline {
     }
 
     stages {
+
+        stage('Clean Test Artifacts') {
+            steps {
+                sh 'rm -rf playwright-report* test-results* blob-report*'
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 sh 'npm ci'
@@ -46,8 +53,11 @@ pipeline {
                         sh '''
                             USERNAME="$LOGIN_CREDENTIALS_USR" \
                             PASSWORD="$LOGIN_CREDENTIALS_PSW" \
-                            PLAYWRIGHT_HTML_OUTPUT_DIR="playwright-report-shard-1" \
-                            npm run test:regression -- --shard=1/3 --output=test-results-shard-1
+                            PLAYWRIGHT_BLOB_OUTPUT_DIR="blob-report-shard-1" \
+                            npm run test:regression -- \
+                            --shard=1/3 \
+                            --reporter=blob \
+                            --output=test-results-shard-1
                         '''
                     }
                 }
@@ -57,8 +67,11 @@ pipeline {
                         sh '''
                             USERNAME="$LOGIN_CREDENTIALS_USR" \
                             PASSWORD="$LOGIN_CREDENTIALS_PSW" \
-                            PLAYWRIGHT_HTML_OUTPUT_DIR="playwright-report-shard-2" \
-                            npm run test:regression -- --shard=2/3 --output=test-results-shard-2
+                            PLAYWRIGHT_BLOB_OUTPUT_DIR="blob-report-shard-2" \
+                            npm run test:regression -- \
+                            --shard=2/3 \
+                            --reporter=blob \
+                            --output=test-results-shard-2
                         '''
                     }
                 }
@@ -68,11 +81,30 @@ pipeline {
                         sh '''
                             USERNAME="$LOGIN_CREDENTIALS_USR" \
                             PASSWORD="$LOGIN_CREDENTIALS_PSW" \
-                            PLAYWRIGHT_HTML_OUTPUT_DIR="playwright-report-shard-3" \
-                            npm run test:regression -- --shard=3/3 --output=test-results-shard-3
+                            PLAYWRIGHT_BLOB_OUTPUT_DIR="blob-report-shard-3" \
+                            npm run test:regression -- \
+                            --shard=3/3 \
+                            --reporter=blob \
+                            --output=test-results-shard-3
                         '''
                     }
                 }
+            }
+        }
+
+        stage('Merge Regression Reports') {
+            when {
+                branch 'main'
+            }
+            steps {
+                sh '''
+                    mkdir -p blob-report
+                    cp blob-report-shard-*/*.zip blob-report/
+
+                    npx playwright merge-reports \
+                    --reporter=html \
+                    blob-report
+                '''
             }
         }
     }
@@ -80,7 +112,7 @@ pipeline {
     post {
         always {
             archiveArtifacts(
-                artifacts: 'playwright-report*/**, test-results*/**',
+                artifacts: 'playwright-report*/**, test-results*/**, blob-report*/**',
                 allowEmptyArchive: true
             )
         }
