@@ -39,12 +39,40 @@ pipeline {
             when {
                 branch 'main'
             }
-            steps {
-                sh '''
-                    USERNAME="$LOGIN_CREDENTIALS_USR" \
-                    PASSWORD="$LOGIN_CREDENTIALS_PSW" \
-                    npm run test:regression
-                '''
+
+            parallel {
+                stage('Shard 1/3') {
+                    steps {
+                        sh '''
+                            USERNAME="$LOGIN_CREDENTIALS_USR" \
+                            PASSWORD="$LOGIN_CREDENTIALS_PSW" \
+                            PLAYWRIGHT_HTML_OUTPUT_DIR="playwright-report-shard-1" \
+                            npm run test:regression -- --shard=1/3 --output=test-results-shard-1
+                        '''
+                    }
+                }
+
+                stage('Shard 2/3') {
+                    steps {
+                        sh '''
+                            USERNAME="$LOGIN_CREDENTIALS_USR" \
+                            PASSWORD="$LOGIN_CREDENTIALS_PSW" \
+                            PLAYWRIGHT_HTML_OUTPUT_DIR="playwright-report-shard-2" \
+                            npm run test:regression -- --shard=2/3 --output=test-results-shard-2
+                        '''
+                    }
+                }
+
+                stage('Shard 3/3') {
+                    steps {
+                        sh '''
+                            USERNAME="$LOGIN_CREDENTIALS_USR" \
+                            PASSWORD="$LOGIN_CREDENTIALS_PSW" \
+                            PLAYWRIGHT_HTML_OUTPUT_DIR="playwright-report-shard-3" \
+                            npm run test:regression -- --shard=3/3 --output=test-results-shard-3
+                        '''
+                    }
+                }
             }
         }
     }
@@ -52,7 +80,7 @@ pipeline {
     post {
         always {
             archiveArtifacts(
-                artifacts: 'playwright-report/**/*, test-results/**/*',
+                artifacts: 'playwright-report*/**, test-results*/**',
                 allowEmptyArchive: true
             )
         }
