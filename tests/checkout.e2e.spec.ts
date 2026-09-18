@@ -25,7 +25,7 @@ test("Verify user can complete checkout and download order PDF @smoke", async ({
     await test.step("Go to cart", async () => {
         await inventoryPage.goToCart();
         expect(cartPage.getCurrentUrl()).toContain("cart.html");
-        expect(await cartPage.getPageTitle()).toBe("Your Cart");
+        expect(cartPage.pageTitle).toHaveText("Your Cart");
     });
 
     await test.step("Proceed to checkout", async () => {
