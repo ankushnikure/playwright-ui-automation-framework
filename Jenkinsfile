@@ -124,5 +124,23 @@ pipeline {
                 allowEmptyArchive: true
             )
         }
+
+        failure {
+            emailext(
+                to: 'ankushnikure@gmail.com',
+                subject: "❌ Playwright CI Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    Playwright CI build failed.
+
+                    Job: ${env.JOB_NAME}
+                    Build: #${env.BUILD_NUMBER}
+                    Status: ${currentBuild.currentResult}
+
+                    Build URL: ${env.BUILD_URL}
+
+                    Please check Jenkins for failed tests and Playwright artifacts.
+                """
+            )
+        }
     }
 }
