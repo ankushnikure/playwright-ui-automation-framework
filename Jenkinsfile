@@ -127,7 +127,7 @@ pipeline {
 
         failure {
             emailext(
-                to: 'your-personal-email@gmail.com',
+                to: 'ankushnikure@gmail.com',
                 subject: "❌ Playwright CI Failed - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
                     Playwright CI build failed.
