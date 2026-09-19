@@ -7,7 +7,13 @@ pipeline {
         choice(
             name: 'TEST_SUITE',
             choices: ['smoke', 'regression'],
-            description: 'Select the test suite to run'
+            description: 'Select test suite'
+        )
+
+        choice(
+            name: 'BROWSER',
+            choices: ['chromium', 'firefox', 'webkit'],
+            description: 'Select browser'
         )
     }
 
@@ -32,7 +38,17 @@ pipeline {
 
         stage('Install Playwright Browser') {
             steps {
-                sh 'npx playwright install chromium'
+                script {
+                    def isManualBuild = currentBuild.getBuildCauses(
+                        'hudson.model.Cause$UserIdCause'
+                    ).size() > 0
+
+                    if (isManualBuild) {
+                        sh "npx playwright install ${params.BROWSER}"
+                    } else {
+                        sh 'npx playwright install chromium'
+                    }
+                }
             }
         }
 
@@ -49,21 +65,23 @@ pipeline {
             steps {
                 script {
                     if (params.TEST_SUITE == 'smoke') {
-                        sh '''
-                            USERNAME="$LOGIN_CREDENTIALS_USR" \
-                            PASSWORD="$LOGIN_CREDENTIALS_PSW" \
+                        sh """
+                            USERNAME="\$LOGIN_CREDENTIALS_USR" \
+                            PASSWORD="\$LOGIN_CREDENTIALS_PSW" \
                             PLAYWRIGHT_JUNIT_OUTPUT_NAME="junit-results-manual.xml" \
                             npm run test:smoke -- \
+                            --project=${params.BROWSER} \
                             --reporter=html,junit
-                        '''
+                        """
                     } else {
-                        sh '''
-                            USERNAME="$LOGIN_CREDENTIALS_USR" \
-                            PASSWORD="$LOGIN_CREDENTIALS_PSW" \
+                        sh """
+                            USERNAME="\$LOGIN_CREDENTIALS_USR" \
+                            PASSWORD="\$LOGIN_CREDENTIALS_PSW" \
                             PLAYWRIGHT_JUNIT_OUTPUT_NAME="junit-results-manual.xml" \
                             npm run test:regression -- \
+                            --project=${params.BROWSER} \
                             --reporter=html,junit
-                        '''
+                        """
                     }
                 }
             }
@@ -89,6 +107,7 @@ pipeline {
                     PASSWORD="$LOGIN_CREDENTIALS_PSW" \
                     PLAYWRIGHT_JUNIT_OUTPUT_NAME="junit-results-smoke.xml" \
                     npm run test:smoke -- \
+                    --project=chromium \
                     --reporter=html,junit
                 '''
             }
@@ -117,6 +136,7 @@ pipeline {
                             PLAYWRIGHT_BLOB_OUTPUT_DIR="blob-report-shard-1" \
                             PLAYWRIGHT_JUNIT_OUTPUT_NAME="junit-results-shard-1.xml" \
                             npm run test:regression -- \
+                            --project=chromium \
                             --shard=1/3 \
                             --reporter=blob,junit \
                             --output=test-results-shard-1
@@ -132,6 +152,7 @@ pipeline {
                             PLAYWRIGHT_BLOB_OUTPUT_DIR="blob-report-shard-2" \
                             PLAYWRIGHT_JUNIT_OUTPUT_NAME="junit-results-shard-2.xml" \
                             npm run test:regression -- \
+                            --project=chromium \
                             --shard=2/3 \
                             --reporter=blob,junit \
                             --output=test-results-shard-2
@@ -147,6 +168,7 @@ pipeline {
                             PLAYWRIGHT_BLOB_OUTPUT_DIR="blob-report-shard-3" \
                             PLAYWRIGHT_JUNIT_OUTPUT_NAME="junit-results-shard-3.xml" \
                             npm run test:regression -- \
+                            --project=chromium \
                             --shard=3/3 \
                             --reporter=blob,junit \
                             --output=test-results-shard-3
