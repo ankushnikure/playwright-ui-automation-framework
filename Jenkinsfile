@@ -10,10 +10,9 @@ pipeline {
     }
 
     stages {
-
         stage('Clean Test Artifacts') {
             steps {
-                sh 'rm -rf playwright-report* test-results* blob-report*'
+                sh 'rm -rf playwright-report* test-results* blob-report* junit-results-*.xml'
             }
         }
 
@@ -54,9 +53,10 @@ pipeline {
                             USERNAME="$LOGIN_CREDENTIALS_USR" \
                             PASSWORD="$LOGIN_CREDENTIALS_PSW" \
                             PLAYWRIGHT_BLOB_OUTPUT_DIR="blob-report-shard-1" \
+                            PLAYWRIGHT_JUNIT_OUTPUT_NAME="junit-results-shard-1.xml" \
                             npm run test:regression -- \
                             --shard=1/3 \
-                            --reporter=blob \
+                            --reporter=blob,junit \
                             --output=test-results-shard-1
                         '''
                     }
@@ -68,9 +68,10 @@ pipeline {
                             USERNAME="$LOGIN_CREDENTIALS_USR" \
                             PASSWORD="$LOGIN_CREDENTIALS_PSW" \
                             PLAYWRIGHT_BLOB_OUTPUT_DIR="blob-report-shard-2" \
+                            PLAYWRIGHT_JUNIT_OUTPUT_NAME="junit-results-shard-2.xml" \
                             npm run test:regression -- \
                             --shard=2/3 \
-                            --reporter=blob \
+                            --reporter=blob,junit \
                             --output=test-results-shard-2
                         '''
                     }
@@ -82,9 +83,10 @@ pipeline {
                             USERNAME="$LOGIN_CREDENTIALS_USR" \
                             PASSWORD="$LOGIN_CREDENTIALS_PSW" \
                             PLAYWRIGHT_BLOB_OUTPUT_DIR="blob-report-shard-3" \
+                            PLAYWRIGHT_JUNIT_OUTPUT_NAME="junit-results-shard-3.xml" \
                             npm run test:regression -- \
                             --shard=3/3 \
-                            --reporter=blob \
+                            --reporter=blob,junit \
                             --output=test-results-shard-3
                         '''
                     }
@@ -111,8 +113,13 @@ pipeline {
 
     post {
         always {
+            junit(
+                testResults: 'junit-results-shard-*.xml',
+                allowEmptyResults: true
+            )
+
             archiveArtifacts(
-                artifacts: 'playwright-report*/**, test-results*/**, blob-report*/**',
+                artifacts: 'playwright-report*/**, test-results*/**, junit-results-shard-*.xml',
                 allowEmptyArchive: true
             )
         }
