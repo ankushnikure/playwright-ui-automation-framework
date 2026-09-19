@@ -36,7 +36,9 @@ pipeline {
                 sh '''
                     USERNAME="$LOGIN_CREDENTIALS_USR" \
                     PASSWORD="$LOGIN_CREDENTIALS_PSW" \
-                    npm run test:smoke
+                    PLAYWRIGHT_JUNIT_OUTPUT_NAME="junit-results-smoke.xml" \
+                    npm run test:smoke -- \
+                    --reporter=html,junit
                 '''
             }
         }
@@ -45,7 +47,6 @@ pipeline {
             when {
                 branch 'main'
             }
-
             parallel {
                 stage('Shard 1/3') {
                     steps {
@@ -114,12 +115,12 @@ pipeline {
     post {
         always {
             junit(
-                testResults: 'junit-results-shard-*.xml',
+                testResults: 'junit-results-*.xml',
                 allowEmptyResults: true
             )
 
             archiveArtifacts(
-                artifacts: 'playwright-report*/**, test-results*/**, junit-results-shard-*.xml',
+                artifacts: 'playwright-report*/**, test-results*/**, junit-results-*.xml',
                 allowEmptyArchive: true
             )
         }
