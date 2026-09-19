@@ -3,6 +3,14 @@
 pipeline {
     agent any
 
+    parameters {
+        choice(
+            name: 'TEST_SUITE',
+            choices: ['smoke', 'regression'],
+            description: 'Select the test suite to run'
+        )
+    }
+
     environment {
         CI = 'true'
         BASE_URL = 'https://www.saucedemo.com/'
