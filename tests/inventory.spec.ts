@@ -10,7 +10,7 @@ test.describe("Inventory tests", () => {
     });
 
     test("Verify user can add specific product to cart @smoke", async ({ inventoryPage }) => {
-        expect(inventoryPage.getCurrentUrl).toContain("inventory.html");
+        expect(inventoryPage.getCurrentUrl()).toContain("inventory.html");
         await inventoryPage.addProductToCart(products.backpack)
         expect(await inventoryPage.isRemoveButtonVisible(products.backpack)).toBeTruthy();
     });
