@@ -15,11 +15,16 @@ pipeline {
             choices: ['chromium', 'firefox', 'webkit'],
             description: 'Select browser'
         )
+
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['staging', 'production'],
+            description: 'Select environment'
+        )
     }
 
     environment {
         CI = 'true'
-        BASE_URL = 'https://www.saucedemo.com/'
         LOGIN_CREDENTIALS = credentials('playwright-ui-automation')
     }
 
@@ -33,6 +38,30 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh 'npm ci'
+            }
+        }
+
+        stage('Set Environment') {
+            steps {
+                script {
+                    def isManualBuild = currentBuild.getBuildCauses(
+                        'hudson.model.Cause$UserIdCause'
+                    ).size() > 0
+
+                    if (isManualBuild) {
+                        if (params.ENVIRONMENT == 'production') {
+                            env.BASE_URL = 'https://www.saucedemo.com/'
+                        } else {
+                            env.BASE_URL = 'https://www.saucedemo.com/'
+                        }
+                    } else {
+                        // Automatic CI runs against staging
+                        env.BASE_URL = 'https://www.saucedemo.com/'
+                    }
+
+                    echo "Environment: ${isManualBuild ? params.ENVIRONMENT : 'staging'}"
+                    echo "Base URL: ${env.BASE_URL}"
+                }
             }
         }
 
