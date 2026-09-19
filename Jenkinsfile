@@ -36,10 +36,53 @@ pipeline {
             }
         }
 
+        // Manual parameterized execution
+        stage('Run Selected Test Suite') {
+            when {
+                expression {
+                    currentBuild.getBuildCauses(
+                        'hudson.model.Cause$UserIdCause'
+                    ).size() > 0
+                }
+            }
+
+            steps {
+                script {
+                    if (params.TEST_SUITE == 'smoke') {
+                        sh '''
+                            USERNAME="$LOGIN_CREDENTIALS_USR" \
+                            PASSWORD="$LOGIN_CREDENTIALS_PSW" \
+                            PLAYWRIGHT_JUNIT_OUTPUT_NAME="junit-results-manual.xml" \
+                            npm run test:smoke -- \
+                            --reporter=html,junit
+                        '''
+                    } else {
+                        sh '''
+                            USERNAME="$LOGIN_CREDENTIALS_USR" \
+                            PASSWORD="$LOGIN_CREDENTIALS_PSW" \
+                            PLAYWRIGHT_JUNIT_OUTPUT_NAME="junit-results-manual.xml" \
+                            npm run test:regression -- \
+                            --reporter=html,junit
+                        '''
+                    }
+                }
+            }
+        }
+
+        // Automatic PR execution
         stage('Run Smoke Tests') {
             when {
-                changeRequest target: 'main'
+                allOf {
+                    changeRequest target: 'main'
+
+                    expression {
+                        currentBuild.getBuildCauses(
+                            'hudson.model.Cause$UserIdCause'
+                        ).size() == 0
+                    }
+                }
             }
+
             steps {
                 sh '''
                     USERNAME="$LOGIN_CREDENTIALS_USR" \
@@ -51,10 +94,20 @@ pipeline {
             }
         }
 
+        // Automatic main execution
         stage('Run Regression Tests') {
             when {
-                branch 'main'
+                allOf {
+                    branch 'main'
+
+                    expression {
+                        currentBuild.getBuildCauses(
+                            'hudson.model.Cause$UserIdCause'
+                        ).size() == 0
+                    }
+                }
             }
+
             parallel {
                 stage('Shard 1/3') {
                     steps {
@@ -105,8 +158,17 @@ pipeline {
 
         stage('Merge Regression Reports') {
             when {
-                branch 'main'
+                allOf {
+                    branch 'main'
+
+                    expression {
+                        currentBuild.getBuildCauses(
+                            'hudson.model.Cause$UserIdCause'
+                        ).size() == 0
+                    }
+                }
             }
+
             steps {
                 sh '''
                     mkdir -p blob-report
