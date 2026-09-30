@@ -1,5 +1,5 @@
 import { test, expect } from "@fixtures/page.fixture";
-import { validUser, invalidUser } from "@test-data/users";
+import { invalidUser } from "@test-data/users";
 
 test.describe("Login tests", () => {
 
@@ -8,7 +8,12 @@ test.describe("Login tests", () => {
     });
 
     test("Verify login with valid credentials", async ({ page, loginPage, inventoryPage }) => {
-        await loginPage.login(validUser.username, validUser.password)
+        const username = process.env.USERNAME;
+        const password = process.env.PASSWORD;
+        if(!username || !password) {
+            throw new Error(`USERNAME or PASSWORD missing in selected environment`);
+        }
+        await loginPage.login(username, password)
         expect(inventoryPage.getCurrentUrl()).toContain("inventory.html");
         expect(await inventoryPage.getPageTitle()).toBe("Products");
     });

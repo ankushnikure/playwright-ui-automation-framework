@@ -1,11 +1,15 @@
 import { test, expect } from "@fixtures/page.fixture";
 import { checkoutUser } from "@test-data/checkout";
 import { products } from "@test-data/products";
-import { validUser } from "@test-data/users";
 
 test.beforeEach(async ({ loginPage }) => {
     await loginPage.navigate("/");
-    await loginPage.login(validUser.username, validUser.password);
+    const username = process.env.USERNAME;
+    const password = process.env.PASSWORD;
+    if(!username || !password) {
+        throw new Error(`USERNAME or PASSWORD missing in selected environment`);
+    }
+    await loginPage.login(username, password);
 });
 
 test("Verify user can complete checkout and download order PDF @smoke", async ({

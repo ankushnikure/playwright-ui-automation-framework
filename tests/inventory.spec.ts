@@ -1,12 +1,16 @@
 import { test, expect } from "@fixtures/page.fixture";
 import { products } from "@test-data/products";
-import { validUser } from "@test-data/users";
 
 test.describe("Inventory tests", () => {
 
     test.beforeEach(async ({ loginPage }) => {
         await loginPage.navigate("/");
-        await loginPage.login(validUser.username, validUser.password);
+        const username = process.env.USERNAME;
+        const password = process.env.PASSWORD;
+        if(!username || !password) {
+            throw new Error(`USERNAME or PASSWORD missing in selected environment`);
+        }
+        await loginPage.login(username, password);
     });
 
     test("Verify user can add specific product to cart @smoke", async ({ inventoryPage }) => {
