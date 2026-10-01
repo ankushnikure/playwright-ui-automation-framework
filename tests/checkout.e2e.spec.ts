@@ -6,7 +6,7 @@ test.beforeEach(async ({ loginPage }) => {
     await loginPage.navigate("/");
     const username = process.env.USERNAME;
     const password = process.env.PASSWORD;
-    if(!username || !password) {
+    if (!username || !password) {
         throw new Error(`USERNAME or PASSWORD missing in selected environment`);
     }
     await loginPage.login(username, password);
@@ -59,12 +59,24 @@ test("Verify user can complete checkout and download order PDF @smoke", async ({
     });
 
     await test.step("Download order PDF", async () => {
+        // Start listening for the download
         const downloadPromise = page.waitForEvent("download");
+
+        // Trigger the action that downloads the file
         await checkoutCompletePage.generateOrderPdf();
+
+        // Capture the downloaded file
         const download = await downloadPromise;
-        expect(download.suggestedFilename()).toContain("swag-labs-order-");
-        expect(download.suggestedFilename()).toMatch(/\.pdf$/); // $ verifies that .pdf is actually at the end of the filename.
-        await download.saveAs(`test-results/${download.suggestedFilename()}`);
+
+        // Get the suggested file name
+        const fileName = download.suggestedFilename();
+
+        // Validate filename / pdf file
+        expect(fileName).toContain("swag-labs-order-");
+        expect(fileName).toMatch(/\.pdf$/); // $ verifies that .pdf is actually at the end of the filename.
+
+        // Save the downloaded file
+        await download.saveAs(`test-results/${fileName}`);
     });
 
 })
