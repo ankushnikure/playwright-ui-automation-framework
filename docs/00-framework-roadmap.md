@@ -8,7 +8,7 @@ Application:
 
 https://demo.nopcommerce.com/
 
----
+----
 
 # Phase 1 - Project Setup
 
@@ -30,7 +30,7 @@ https://demo.nopcommerce.com/
 - Configure HTML reporting
 - Create first smoke test
 
----
+----
 
 # Phase 2 - Playwright Test Basics
 
